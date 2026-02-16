@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  createServerClient(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -24,6 +24,9 @@ export async function updateSession(request: NextRequest) {
       },
     }
   );
+
+  // 세션 갱신 — 이 호출이 없으면 쿠키가 제대로 청크/갱신되지 않아 431 에러 발생
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }
