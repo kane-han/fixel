@@ -3,10 +3,12 @@
 import { useCallback } from 'react';
 import { Slider } from '@/components/ui/Slider';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 
 export function ToneAdjustment() {
   const { tone, setTone, originalImage, setCurrentImage, pushHistory, isProcessing, setProcessing } = useEditorStore();
+  const { toast } = useToast();
 
   const applyTone = useCallback(async () => {
     if (!originalImage || isProcessing) return;
@@ -14,16 +16,18 @@ export function ToneAdjustment() {
     setProcessing(true);
     try {
       const { applyToneAdjustment } = await import('@/lib/canvas/tone-adjust');
-      // 히스토리의 현재 상태를 기반으로 톤 적용
       const store = useEditorStore.getState();
       const baseImage = store.history[store.historyIndex]?.imageData || originalImage;
       const result = await applyToneAdjustment(baseImage, tone);
       setCurrentImage(result);
       pushHistory('톤 보정');
+      toast('톤 보정이 적용되었습니다.', 'success');
+    } catch {
+      toast('톤 보정 중 오류가 발생했습니다.', 'error');
     } finally {
       setProcessing(false);
     }
-  }, [tone, originalImage, isProcessing, setCurrentImage, pushHistory, setProcessing]);
+  }, [tone, originalImage, isProcessing, setCurrentImage, pushHistory, setProcessing, toast]);
 
   const resetTone = () => {
     setTone({ brightness: 0, contrast: 0, saturation: 0, temperature: 0 });

@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Slider } from '@/components/ui/Slider';
+import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 import { removeBg } from '@/lib/api/clipdrop';
 
 export function BackgroundRemoval() {
   const { currentImage, setCurrentImage, setMaskImage, pushHistory, isProcessing, setProcessing } = useEditorStore();
+  const { toast } = useToast();
   const [edgeRefine, setEdgeRefine] = useState(1.5);
   const [autoRefine, setAutoRefine] = useState(true);
 
@@ -27,9 +29,12 @@ export function BackgroundRemoval() {
 
         setCurrentImage(processedImage);
         pushHistory('배경 제거');
+        toast('배경이 제거되었습니다.', 'success');
+      } else {
+        toast(result.error || '배경 제거에 실패했습니다.', 'error');
       }
     } catch {
-      // 에러 처리는 Phase 4에서 추가
+      toast('배경 제거 중 오류가 발생했습니다.', 'error');
     } finally {
       setProcessing(false);
     }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 import { upscaleImage } from '@/lib/api/clipdrop';
 
@@ -12,6 +13,7 @@ const SCALE_OPTIONS = [
 
 export function UpscalePanel() {
   const { width, height, currentImage, setCurrentImage, pushHistory, isProcessing, setProcessing } = useEditorStore();
+  const { toast } = useToast();
   const [scaleFactor, setScaleFactor] = useState(2);
 
   const handleUpscale = async () => {
@@ -20,7 +22,10 @@ export function UpscalePanel() {
     const targetW = width * scaleFactor;
     const targetH = height * scaleFactor;
 
-    if (targetW > 4096 || targetH > 4096) return;
+    if (targetW > 4096 || targetH > 4096) {
+      toast('최대 해상도(4096px)를 초과합니다.', 'error');
+      return;
+    }
 
     setProcessing(true);
     try {
@@ -29,9 +34,12 @@ export function UpscalePanel() {
         setCurrentImage(result.data.imageBase64);
         useEditorStore.setState({ width: targetW, height: targetH });
         pushHistory(`${scaleFactor}x 업스케일`);
+        toast(`${scaleFactor}x 업스케일 완료!`, 'success');
+      } else {
+        toast(result.error || '업스케일에 실패했습니다.', 'error');
       }
     } catch {
-      // 에러 처리는 Phase 4에서
+      toast('업스케일 중 오류가 발생했습니다.', 'error');
     } finally {
       setProcessing(false);
     }

@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 import { ColorPicker } from '@/components/ui/ColorPicker';
-import { Slider } from '@/components/ui/Slider';
+import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 import type { BackgroundType, GradientDirection, CommerceTemplate } from '@/types/editor';
 import { fileToDataUrl } from '@/lib/utils/image-validation';
@@ -37,6 +37,7 @@ const templates: { id: CommerceTemplate; label: string; size: string }[] = [
 
 export function BackgroundReplace() {
   const { background, setBackground, currentImage, width, height, setCurrentImage, pushHistory, isProcessing, setProcessing } = useEditorStore();
+  const { toast } = useToast();
 
   const selectType = (type: BackgroundType) => {
     setBackground({ type });
@@ -51,10 +52,13 @@ export function BackgroundReplace() {
       const result = await compositeWithBackground(currentImage, background, width, height);
       setCurrentImage(result);
       pushHistory('배경 교체');
+      toast('배경이 교체되었습니다.', 'success');
+    } catch {
+      toast('배경 교체 중 오류가 발생했습니다.', 'error');
     } finally {
       setProcessing(false);
     }
-  }, [currentImage, background, width, height, isProcessing, setCurrentImage, pushHistory, setProcessing]);
+  }, [currentImage, background, width, height, isProcessing, setCurrentImage, pushHistory, setProcessing, toast]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { exportImage } from '@/lib/canvas/export';
@@ -10,6 +11,7 @@ import { downloadBlob } from '@/lib/utils/file-helpers';
 export function DownloadPanel() {
   const { currentImage } = useEditorStore();
   const { user, setShowLoginModal } = useAuthStore();
+  const { toast } = useToast();
   const [format, setFormat] = useState<'png' | 'jpg'>('png');
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -20,7 +22,6 @@ export function DownloadPanel() {
     try {
       let imageSrc = currentImage;
 
-      // 비로그인 사용자: 클라이언트 사이드 워터마크 합성
       if (!user) {
         const { addWatermark } = await import('@/lib/canvas/watermark');
         imageSrc = await addWatermark(imageSrc);
@@ -29,6 +30,9 @@ export function DownloadPanel() {
       const blob = await exportImage(imageSrc, format);
       const ext = format === 'jpg' ? 'jpg' : 'png';
       downloadBlob(blob, `fixel-export.${ext}`);
+      toast('다운로드 완료!', 'success');
+    } catch {
+      toast('다운로드 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsDownloading(false);
     }

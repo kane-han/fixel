@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 import type { CropPreset } from '@/types/editor';
 
@@ -23,6 +24,7 @@ const platformPresets = [
 
 export function CropPanel() {
   const { width, height, currentImage, setCurrentImage, pushHistory, isProcessing, setProcessing } = useEditorStore();
+  const { toast } = useToast();
   const [selectedRatio, setSelectedRatio] = useState<[number, number] | null>(null);
   const [cropW, setCropW] = useState(width);
   const [cropH, setCropH] = useState(height);
@@ -57,6 +59,9 @@ export function CropPanel() {
       setCurrentImage(result);
       useEditorStore.setState({ width: cropW, height: cropH });
       pushHistory('크롭');
+      toast('크롭이 적용되었습니다.', 'success');
+    } catch {
+      toast('크롭 중 오류가 발생했습니다.', 'error');
     } finally {
       setProcessing(false);
     }
