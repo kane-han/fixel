@@ -42,7 +42,11 @@ export function ImageUploader() {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
+    if (!file) {
+      setError('이미지 파일을 드래그해주세요.');
+      return;
+    }
+    processFile(file);
   }, [processFile]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

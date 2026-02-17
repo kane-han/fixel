@@ -22,7 +22,7 @@ export function validateImageDimensions(w: number, h: number): ValidationResult 
     return { valid: false, error: `이미지 크기는 ${MAX_DIMENSION}x${MAX_DIMENSION}px 이하만 가능합니다.` };
   }
   if (w < 10 || h < 10) {
-    return { valid: false, error: '이미지가 너무 작습니다.' };
+    return { valid: false, error: `이미지가 너무 작습니다. (최소 10×10px, 현재 ${w}×${h}px)` };
   }
   return { valid: true };
 }

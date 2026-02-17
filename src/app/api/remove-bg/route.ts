@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       data: { imageBase64: resultBase64 },
     });
   } catch (error) {
+    console.error('[remove-bg] 오류:', error);
     return NextResponse.json(
       { success: false, error: '서버 오류가 발생했습니다.' },
       { status: 500 }

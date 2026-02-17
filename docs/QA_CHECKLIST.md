@@ -201,4 +201,30 @@
 
 ---
 
-**총 체크 항목: 약 90건**
+## 14. 코드 레벨 QA 결과 (자동 검증)
+
+### API/페이지 응답 (2026-02-17 검증)
+- [x] GET / → 200 ✅
+- [x] GET /editor → 200 ✅
+- [x] GET /auth/callback → 307 (리다이렉트) ✅
+- [x] POST /api/remove-bg (빈 body) → 400 ✅
+- [x] POST /api/upscale (빈 body) → 400 ✅
+- [x] GET /api/remove-bg → 405 ✅
+- [x] GET /api/upscale → 405 ✅
+
+### 코드 리뷰 발견 이슈 및 수정 현황
+
+| # | 심각도 | 이슈 | 파일 | 상태 |
+|---|--------|------|------|------|
+| 1 | Critical | export.ts toBlob null 미처리 | `canvas/export.ts` | ✅ 수정 |
+| 2 | Critical | crop.ts 경계 검증 누락 | `canvas/crop.ts` | ✅ 수정 |
+| 3 | Critical | .env.local Git 노출 | `.gitignore` | ✅ 이미 안전 |
+| 4 | Major | ImageUploader 드래그 파일 없음 처리 | `upload/ImageUploader.tsx` | ✅ 수정 |
+| 5 | Major | 이미지 최소 크기 에러 메시지 불친절 | `utils/image-validation.ts` | ✅ 수정 |
+| 6 | Minor | API 라우트 에러 로깅 누락 | `api/remove-bg`, `api/upscale` | ✅ 수정 |
+| 7 | Minor | 톤 보정 누적 적용 | `tools/ToneAdjustment.tsx` | ⚠️ 의도된 동작 |
+| 8 | Minor | 커머스 템플릿 자동 리사이즈 미구현 | `tools/BackgroundReplace.tsx` | ⚠️ 향후 개선 |
+
+---
+
+**총 체크 항목: 약 90건 + 코드 검증 15건**
