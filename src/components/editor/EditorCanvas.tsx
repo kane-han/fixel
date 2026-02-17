@@ -8,9 +8,12 @@ export function EditorCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { currentImage, width, height, activeTool, brushSize, showCompare, originalImage } = useEditorStore();
   const [compareX, setCompareX] = useState(0.5);
+  const [isDraggingCompare, setIsDraggingCompare] = useState(false);
   const [scale, setScale] = useState(1);
   const [brushPoints, setBrushPoints] = useState<{ x: number; y: number }[]>([]);
   const [isPainting, setIsPainting] = useState(false);
+
+  const isBrushTool = activeTool === 'touchup-add' || activeTool === 'touchup-remove';
 
   // 캔버스 렌더링
   const render = useCallback(async () => {
@@ -60,15 +63,22 @@ export function EditorCanvas() {
     }
   }, [currentImage, showCompare, originalImage, compareX]);
 
-  // 컨테이너에 맞게 스케일 조정
+  // 컨테이너에 맞게 스케일 조정 + 리사이즈 리스너
   useEffect(() => {
     if (!containerRef.current || !width || !height) return;
 
-    const container = containerRef.current;
-    const maxW = container.clientWidth - 40;
-    const maxH = container.clientHeight - 40;
-    const s = Math.min(maxW / width, maxH / height, 1);
-    setScale(s);
+    const handleResize = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      const maxW = container.clientWidth - 40;
+      const maxH = container.clientHeight - 40;
+      const s = Math.min(maxW / width, maxH / height, 1);
+      setScale(s);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [width, height]);
 
   useEffect(() => {
@@ -86,46 +96,62 @@ export function EditorCanvas() {
     };
   }, [width, height]);
 
+  const getCompareX = useCallback((e: React.MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return 0.5;
+    const rect = canvas.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  }, []);
+
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (activeTool !== 'touchup-add' && activeTool !== 'touchup-remove') return;
+    // 비교 모드 슬라이더 — 모든 도구에서 동작
     if (showCompare) {
-      // 비교 모드에서 슬라이더 드래그
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      setCompareX((e.clientX - rect.left) / rect.width);
+      setIsDraggingCompare(true);
+      setCompareX(getCompareX(e));
       return;
     }
+
+    // 브러시 도구일 때만 페인팅 시작
+    if (!isBrushTool) return;
     setIsPainting(true);
     const pt = getCanvasPoint(e);
     if (pt) setBrushPoints([pt]);
-  }, [activeTool, showCompare, getCanvasPoint]);
+  }, [showCompare, isBrushTool, getCanvasPoint, getCompareX]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (showCompare) {
-      if (e.buttons === 1) {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const rect = canvas.getBoundingClientRect();
-        setCompareX(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)));
-      }
+    // 비교 슬라이더 드래그
+    if (isDraggingCompare) {
+      setCompareX(getCompareX(e));
       return;
     }
+
+    // 브러시 페인팅
     if (!isPainting) return;
     const pt = getCanvasPoint(e);
     if (pt) setBrushPoints((prev) => [...prev, pt]);
-  }, [isPainting, showCompare, getCanvasPoint]);
+  }, [isPainting, isDraggingCompare, getCanvasPoint, getCompareX]);
 
   const handleMouseUp = useCallback(async () => {
+    // 비교 슬라이더 드래그 종료
+    if (isDraggingCompare) {
+      setIsDraggingCompare(false);
+      return;
+    }
+
+    // 브러시 스트로크 적용
     if (!isPainting || brushPoints.length === 0) {
       setIsPainting(false);
+      setBrushPoints([]);
       return;
     }
     setIsPainting(false);
 
     const { applyBrushStroke } = await import('@/lib/canvas/brush');
     const store = useEditorStore.getState();
-    if (!store.currentImage || !store.originalImage) return;
+    if (!store.currentImage || !store.originalImage) {
+      setBrushPoints([]);
+      return;
+    }
 
     const mode = store.activeTool === 'touchup-add' ? 'add' : 'remove';
     const result = await applyBrushStroke(
@@ -138,11 +164,13 @@ export function EditorCanvas() {
     store.setCurrentImage(result);
     store.pushHistory(mode === 'add' ? '영역 추가 제거' : '영역 복원');
     setBrushPoints([]);
-  }, [isPainting, brushPoints, brushSize]);
+  }, [isPainting, isDraggingCompare, brushPoints, brushSize]);
 
-  const cursorStyle = (activeTool === 'touchup-add' || activeTool === 'touchup-remove')
+  const cursorStyle = showCompare
+    ? 'col-resize'
+    : isBrushTool
     ? 'crosshair'
-    : showCompare ? 'col-resize' : 'default';
+    : 'default';
 
   return (
     <div ref={containerRef} className="flex-1 flex items-center justify-center checkerboard overflow-hidden">

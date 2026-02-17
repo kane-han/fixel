@@ -7,18 +7,16 @@ import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 
 export function ToneAdjustment() {
-  const { tone, setTone, originalImage, setCurrentImage, pushHistory, isProcessing, setProcessing } = useEditorStore();
+  const { tone, setTone, currentImage, setCurrentImage, pushHistory, isProcessing, setProcessing } = useEditorStore();
   const { toast } = useToast();
 
   const applyTone = useCallback(async () => {
-    if (!originalImage || isProcessing) return;
+    if (!currentImage || isProcessing) return;
 
     setProcessing(true);
     try {
       const { applyToneAdjustment } = await import('@/lib/canvas/tone-adjust');
-      const store = useEditorStore.getState();
-      const baseImage = store.history[store.historyIndex]?.imageData || originalImage;
-      const result = await applyToneAdjustment(baseImage, tone);
+      const result = await applyToneAdjustment(currentImage, tone);
       setCurrentImage(result);
       pushHistory('톤 보정');
       toast('톤 보정이 적용되었습니다.', 'success');
@@ -27,7 +25,7 @@ export function ToneAdjustment() {
     } finally {
       setProcessing(false);
     }
-  }, [tone, originalImage, isProcessing, setCurrentImage, pushHistory, setProcessing, toast]);
+  }, [tone, currentImage, isProcessing, setCurrentImage, pushHistory, setProcessing, toast]);
 
   const resetTone = () => {
     setTone({ brightness: 0, contrast: 0, saturation: 0, temperature: 0 });
