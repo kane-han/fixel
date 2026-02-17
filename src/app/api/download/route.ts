@@ -28,6 +28,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    console.error('[download] 오류:', error);
     return NextResponse.json(
       { success: false, error: '서버 오류가 발생했습니다.' },
       { status: 500 }

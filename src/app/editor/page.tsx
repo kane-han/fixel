@@ -8,7 +8,6 @@ import { EditorCanvas } from '@/components/editor/EditorCanvas';
 import { EditorSidebar } from '@/components/editor/EditorSidebar';
 import { UndoRedoBar } from '@/components/editor/UndoRedoBar';
 import { LoginModal } from '@/components/auth/LoginModal';
-import { ToastProvider } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -29,8 +28,7 @@ export default function EditorPage() {
   if (!currentImage) return null;
 
   return (
-    <ToastProvider>
-      <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden">
         <Header />
         <LoginModal />
 
@@ -56,7 +54,6 @@ export default function EditorPage() {
           </div>
           <EditorSidebar />
         </div>
-      </div>
-    </ToastProvider>
+    </div>
   );
 }

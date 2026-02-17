@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'API 키가 설정되지 않았습니다.' }, { status: 500 });
     }
 
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+    const base64Data = imageBase64.replace(/^data:[^;]+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
 
     const formData = new FormData();

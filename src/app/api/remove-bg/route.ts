@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     // base64 → Blob
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+    const base64Data = imageBase64.replace(/^data:[^;]+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
 
     const formData = new FormData();

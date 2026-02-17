@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useEditorStore } from '@/stores/editor-store';
@@ -28,6 +28,13 @@ export function CropPanel() {
   const [selectedRatio, setSelectedRatio] = useState<[number, number] | null>(null);
   const [cropW, setCropW] = useState(width);
   const [cropH, setCropH] = useState(height);
+
+  // 스토어 width/height 변경 시 동기화 (크롭/업스케일 후)
+  useEffect(() => {
+    setCropW(width);
+    setCropH(height);
+    setSelectedRatio(null);
+  }, [width, height]);
 
   const applyRatio = (ratio: [number, number] | null) => {
     setSelectedRatio(ratio);

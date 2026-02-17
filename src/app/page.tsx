@@ -3,14 +3,12 @@
 import { Header } from '@/components/layout/Header';
 import { ImageUploader } from '@/components/upload/ImageUploader';
 import { LoginModal } from '@/components/auth/LoginModal';
-import { ToastProvider } from '@/components/ui/Toast';
 
 export default function HomePage() {
   return (
-    <ToastProvider>
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <LoginModal />
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <LoginModal />
 
         <main className="flex-1 flex flex-col items-center justify-center px-4 py-16">
           {/* Hero */}
@@ -75,7 +73,6 @@ export default function HomePage() {
         <footer className="py-6 text-center text-xs text-gray-600 border-t border-gray-900">
           FIXEL — Fix + Pixel. AI 기반 사진 보정 서비스.
         </footer>
-      </div>
-    </ToastProvider>
+    </div>
   );
 }
