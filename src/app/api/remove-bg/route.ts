@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { uploadProcessedImage } from '@/lib/supabase/storage';
 
 export async function POST(request: Request) {
   try {
@@ -38,6 +39,9 @@ export async function POST(request: Request) {
 
     const resultBuffer = Buffer.from(await response.arrayBuffer());
     const resultBase64 = `data:image/png;base64,${resultBuffer.toString('base64')}`;
+
+    // Storage 백업 (fire-and-forget — 실패해도 응답에 영향 없음)
+    uploadProcessedImage(resultBase64, 'remove-bg').catch(console.error);
 
     return NextResponse.json({
       success: true,
