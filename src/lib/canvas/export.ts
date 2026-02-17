@@ -16,9 +16,15 @@ export async function exportImage(
 
   ctx.drawImage(img, 0, 0);
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     canvas.toBlob(
-      (blob) => resolve(blob!),
+      (blob) => {
+        if (!blob) {
+          reject(new Error('이미지 변환에 실패했습니다.'));
+          return;
+        }
+        resolve(blob);
+      },
       format === 'jpg' ? 'image/jpeg' : 'image/png',
       quality
     );
