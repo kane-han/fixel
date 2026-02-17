@@ -28,11 +28,11 @@ const gradientDirections: { label: string; value: GradientDirection }[] = [
   { label: '↙', value: 'to-bl' },
 ];
 
-const templates: { id: CommerceTemplate; label: string; size: string }[] = [
-  { id: 'smartstore', label: '스마트스토어', size: '1000×1000' },
-  { id: 'coupang', label: '쿠팡', size: '800×800' },
-  { id: 'daangn', label: '당근마켓', size: '1080×1080' },
-  { id: '11st', label: '11번가', size: '640×640' },
+const templates: { id: CommerceTemplate; label: string; size: string; w: number; h: number }[] = [
+  { id: 'smartstore', label: '스마트스토어', size: '1000×1000', w: 1000, h: 1000 },
+  { id: 'coupang', label: '쿠팡', size: '800×800', w: 800, h: 800 },
+  { id: 'daangn', label: '당근마켓', size: '1080×1080', w: 1080, h: 1080 },
+  { id: '11st', label: '11번가', size: '640×640', w: 640, h: 640 },
 ];
 
 export function BackgroundReplace() {
@@ -49,6 +49,21 @@ export function BackgroundReplace() {
     setProcessing(true);
     try {
       const { compositeWithBackground } = await import('@/lib/canvas/composite');
+
+      // 커머스 템플릿: 지정 크기로 리사이즈 + 흰 배경 + contain 배치
+      if (background.type === 'template' && background.template) {
+        const tmpl = templates.find((t) => t.id === background.template);
+        if (tmpl) {
+          const templateBg = { ...background, type: 'solid' as const, color: '#ffffff' };
+          const result = await compositeWithBackground(currentImage, templateBg, tmpl.w, tmpl.h, 'contain');
+          setCurrentImage(result);
+          useEditorStore.setState({ width: tmpl.w, height: tmpl.h });
+          pushHistory(`${tmpl.label} 템플릿`);
+          toast(`${tmpl.label} 템플릿이 적용되었습니다. (${tmpl.size})`, 'success');
+          return;
+        }
+      }
+
       const result = await compositeWithBackground(currentImage, background, width, height);
       setCurrentImage(result);
       pushHistory('배경 교체');
