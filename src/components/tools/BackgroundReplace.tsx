@@ -9,14 +9,14 @@ import type { BackgroundType, GradientDirection, CommerceTemplate } from '@/type
 import { fileToDataUrl } from '@/lib/utils/image-validation';
 
 const bgImages = [
-  { id: 'studio-white', label: '스튜디오 화이트', url: '/backgrounds/studio-white.bmp' },
-  { id: 'studio-gray', label: '스튜디오 그레이', url: '/backgrounds/studio-gray.bmp' },
-  { id: 'nature-green', label: '자연 그린', url: '/backgrounds/nature-green.bmp' },
-  { id: 'nature-sky', label: '하늘', url: '/backgrounds/nature-sky.bmp' },
-  { id: 'marble', label: '대리석', url: '/backgrounds/marble.bmp' },
-  { id: 'wood', label: '우드', url: '/backgrounds/wood.bmp' },
-  { id: 'fabric', label: '패브릭', url: '/backgrounds/fabric.bmp' },
-  { id: 'gradient-pastel', label: '파스텔', url: '/backgrounds/gradient-pastel.bmp' },
+  { id: 'studio-white', label: '스튜디오 화이트', url: '/backgrounds/studio-white.webp' },
+  { id: 'studio-gray', label: '스튜디오 그레이', url: '/backgrounds/studio-gray.webp' },
+  { id: 'nature-green', label: '자연 그린', url: '/backgrounds/nature-green.webp' },
+  { id: 'nature-sky', label: '하늘', url: '/backgrounds/nature-sky.webp' },
+  { id: 'marble', label: '대리석', url: '/backgrounds/marble.webp' },
+  { id: 'wood', label: '우드', url: '/backgrounds/wood.webp' },
+  { id: 'fabric', label: '패브릭', url: '/backgrounds/fabric.webp' },
+  { id: 'gradient-pastel', label: '파스텔', url: '/backgrounds/gradient-pastel.webp' },
 ];
 
 const gradientDirections: { label: string; value: GradientDirection }[] = [
